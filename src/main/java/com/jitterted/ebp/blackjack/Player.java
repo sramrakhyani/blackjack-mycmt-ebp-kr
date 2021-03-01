@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.*;
 public class Player {
     private int playerBalance = 0;
     private int playerBet = 0;
+    private int totalPlayerBet = 0;
 
     public Player(int playerBalance) {
         this.playerBalance = playerBalance;
@@ -18,23 +19,40 @@ public class Player {
     }
 
     public void playerBets(int betAmount) {
+
         this.playerBet = betAmount;
-        this.playerBalance = playerBalance - betAmount;
+        this.totalPlayerBet += betAmount;
+        this.playerBalance = playerBalance - betAmount + getBonusAmount(betAmount);
+
+    }
+
+    private int getBonusAmount(int betAmount) {
+        if(betAmount >= 100)
+           return 10;
+        return 0;
+    }
+
+    private void updatePlayerBalanceByState(PlayerState plState) {
+        this.playerBalance += plState.betMultiplicationFactor * playerBet;
     }
 
     public void playerWins() {
-        this.playerBalance = playerBalance + playerBet * 2;
+        updatePlayerBalanceByState(PlayerState.WIN);
     }
 
     public void playerLoses() {
-        this.playerBalance = playerBalance + playerBet * 0;
+        updatePlayerBalanceByState(PlayerState.LOOSE);
     }
 
     public void playerTies() {
-        this.playerBalance = playerBalance + playerBet * 1;
+        updatePlayerBalanceByState(PlayerState.TIE);
     }
 
     public void validateBalance(int i) {
-        assertThat(i==playerBalance);
+        assertThat(playerBalance).isEqualTo(i);
+    }
+
+    public int getTotalAmountBet() {
+        return totalPlayerBet;
     }
 }
